@@ -4,7 +4,8 @@ SendMode Input  ; Recommended for new scripts due to its superior speed and reli
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 
-Whatever := New InputDlg("Menu","Okay","Text_Name:", "Edit_Name", "Text_Hot or Cold:", "Radio_Hot", "Radio_Cold", "Text_Noodle Type:", "Radio_Soba", "Radio_Udon", "Text_Extras:","Checkbox_Pork","Checkbox_Egg","Checkbox_Nori")
+Whatever := New InputDlg("Menu","Okay","Text_Order " . A_TickCount, "Text_Hot or Cold:", "Radio_Hot", "Radio_Cold", "Text_Noodle Type:"
+						, "Radio_Soba", "Radio_Udon", "Text_Extras:","Checkbox_Pork","Checkbox_Egg","Checkbox_Nori", "Text_Order Notes: ", "90Edit_Notes")
 WinWaitClose, % "ahk_id " Whatever 
 ExitApp
 
@@ -12,18 +13,13 @@ ExitApp
 Okay(GuiHwnd, SubmitHWND, Title) {
 Global 
 GUI, Submit, Nohide
-
-	if (Title = "GUINAME") {
-		MsgBox % "Hello, " (Radio_Male = 1 ? "Male" : "Female") " called " Edit_Name ",`n`nYou have these pets:" (Checkbox_Cat = 1 ? " Cat":"") (Checkbox_Dog = 1 ? " Dog":"") (Checkbox_Fish = 1 ? " Fish":"")
-		Gui %GuiHwnd%:Destroy
-	}
-
 	if (Title = "Menu") {
 		
 		(Checkbox_Pork = 1 ? ListofChecks .= "Pork`n" : "")
 		(Checkbox_Egg = 1 ? ListofChecks .= "Egg`n" : "")
 		(Checkbox_Nori = 1 ? ListofChecks .= "Nori`n" : "")
-		MsgBox % Edit_Name "'s Order for Raman:`n`nNoodle Type: `n" (Radio_Sorba = 1 ? "Sorba" : "Udon") "`n`nBroth: `n" (Radio_Hot = 1 ? "Hot" : "Cold") "`n`nExtras: `n" ListofChecks
+		MsgBox % Edit_Name "Order for Raman:`n`nNoodle Type: `n" (Radio_Sorba = 1 ? "Sorba" : "Udon") "`n`nBroth: `n" (Radio_Hot = 1 ? "Hot" : "Cold") "`n`nExtras: `n" ListofChecks "`n`nOrder Notes:`n" 90Edit_Notes
+								
 		Gui %GuiHwnd%:Destroy
 		ListofChecks := 
 	}
@@ -54,15 +50,18 @@ Class InputDlg
 			Gui +Hwndh%Title%
 			for index, Options in Options 
 				{
-		 
 					if (InStr(Options, "Text_") = "1")
 						{
 							Gui, Add, Text,, % Options := StrReplace(Options, "Text_")
 						}
-		
-					if (InStr(Options, "Edit") = "1")
+
+					if (InStr(Options, "Edit") = "1" ) or (InStr(Options, "Edit") = "2") or (InStr(Options, "Edit") = "3")
 						{
-							Gui, Add, Edit, % "v" Options, 
+								x := SubStr(Options, 1 , 2)
+							 	if (x != "Ed") 
+									Gui, Add, Edit, % "v" Options " h" x,
+								else
+									Gui, Add, Edit, % "v" Options,
 						}
 		
 					if (InStr(Options, "Radio") = "1")
@@ -75,7 +74,7 @@ Class InputDlg
 							Gui, Add, Checkbox, % "v" Options, % Options := StrReplace(Options, "Checkbox_")
 						}
 				}
-		Gui, Add, Button, wp HwndSubmitHWND +default, Okay
+		Gui, Add, Button, wp y+5 HwndSubmitHWND +default, Okay
 		fn_1 := Func(FunctionOut).bind(h%Title%,SubmitHWND, Title)
 		GuiControl, +g, % SubmitHWND, % fn_1
 		This.Show(Title)
