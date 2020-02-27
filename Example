@@ -1,0 +1,70 @@
+
+Whatever := New InputDlg("Menu","Okay","Text_Name:", "Edit_Name", "Text_Hot or Cold:", "Radio_Hot", "Radio_Cold", "Text_Noodle Type:", "Radio_Soba", "Radio_Udon", "Text_Extras:","Checkbox_Pork","Checkbox_Egg","Checkbox_Nori")
+WinWaitClose, % "ahk_id " Whatever 
+ExitApp
+
+Class InputDlg
+{
+	__New(Title, FunctionOut, Options*)
+		{
+			Global
+			Static Count := 0
+			Gui, %Title%:New
+			Gui +Hwndh%Title%
+			for index, Options in Options 
+				{
+		 
+					if (InStr(Options, "Text_") = "1")
+						{
+							Gui, Add, Text,, % Options := StrReplace(Options, "Text_")
+						}
+		
+					if (InStr(Options, "Edit") = "1")
+						{
+							Gui, Add, Edit, % "v" Options, 
+						}
+		
+					if (InStr(Options, "Radio") = "1")
+						{
+							Gui, Add, Radio, % "v" Options, % a := StrReplace(Options, "Radio_")
+						}
+		
+					if (InStr(Options, "Checkbox") = "1")
+						{
+							Gui, Add, Checkbox, % "v" Options, % Options := StrReplace(Options, "Checkbox_")
+						}
+				}
+		Gui, Add, Button, wp HwndSubmitHWND +default, Okay
+		fn_1 := Func(FunctionOut).bind(h%Title%,SubmitHWND, Title)
+		GuiControl, +g, % SubmitHWND, % fn_1
+		This.Show(Title)
+		Return h%Title%
+	}
+	
+	Show(Title) {
+		Gui %Title%:Show 
+	}
+	
+}
+
+Okay(GuiHwnd, SubmitHWND, Title) {
+Global 
+GUI, Submit, Nohide
+
+	if (Title = "GUINAME") {
+		MsgBox % "Hello, " (Radio_Male = 1 ? "Male" : "Female") " called " Edit_Name ",`n`nYou have these pets:" (Checkbox_Cat = 1 ? " Cat":"") (Checkbox_Dog = 1 ? " Dog":"") (Checkbox_Fish = 1 ? " Fish":"")
+		Gui %GuiHwnd%:Destroy
+	}
+
+	if (Title = "Menu") {
+		
+		(Checkbox_Pork = 1 ? ListofChecks .= "Pork`n" : "")
+		(Checkbox_Egg = 1 ? ListofChecks .= "Egg`n" : "")
+		(Checkbox_Nori = 1 ? ListofChecks .= "Nori`n" : "")
+		MsgBox % Edit_Name "'s Order for Raman:`n`nNoodle Type: `n" (Radio_Sorba = 1 ? "Sorba" : "Udon") "`n`nBroth: `n" (Radio_Hot = 1 ? "Hot" : "Cold") "`n`nExtras: `n" ListofChecks
+		Gui %GuiHwnd%:Destroy
+		ListofChecks := 
+	}
+}
+
+
